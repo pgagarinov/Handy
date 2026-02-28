@@ -18,7 +18,7 @@ const ACCENT = "#4DC9FF";
 // --- Waveform bar constants ---
 const BAR_MIN_HEIGHT = 2;
 const CORNER_RADIUS = 1.5;
-const SCROLL_SPEED = 70;
+const SCROLL_SPEED = 24;
 const DESIRED_BAR_WIDTH = 4.5;
 const DESIRED_GAP_RATIO = 0.7;
 const COLOR_CORE = [77, 201, 255] as const;
@@ -154,7 +154,12 @@ function drawWaveform(
       BAR_MIN_HEIGHT,
       BAR_MIN_HEIGHT + amp * maxBarHeight * 0.92,
     );
-    barHeights[i] = barHeights[i] * 0.42 + target * 0.58;
+    const stiffness = 45;
+    const damping = 8;
+    const force = (target - barHeights[i]) * stiffness;
+    barVelocities[i] += (force - barVelocities[i] * damping) * dt;
+    barHeights[i] += barVelocities[i] * dt;
+    barHeights[i] = Math.max(BAR_MIN_HEIGHT, barHeights[i]);
   }
 
   // Glow layer (soft)
@@ -284,7 +289,8 @@ const RecordingOverlay: React.FC = () => {
       );
       lastFrameTimeRef.current = timestamp;
 
-      smoothedLevelRef.current = audioLevelRef.current;
+      smoothedLevelRef.current =
+        smoothedLevelRef.current * 0.5 + audioLevelRef.current * 0.5;
 
       if (canvasRef.current) {
         const ws = waveformStateRef.current;

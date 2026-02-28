@@ -30,19 +30,8 @@ tauri_panel! {
     })
 }
 
-const OVERLAY_WIDTH: f64 = 172.0;
-const OVERLAY_HEIGHT: f64 = 36.0;
-
-#[cfg(target_os = "macos")]
-const OVERLAY_TOP_OFFSET: f64 = 46.0;
-#[cfg(any(target_os = "windows", target_os = "linux"))]
-const OVERLAY_TOP_OFFSET: f64 = 4.0;
-
-#[cfg(target_os = "macos")]
-const OVERLAY_BOTTOM_OFFSET: f64 = 15.0;
-
-#[cfg(any(target_os = "windows", target_os = "linux"))]
-const OVERLAY_BOTTOM_OFFSET: f64 = 40.0;
+const OVERLAY_WIDTH: f64 = 380.0;
+const OVERLAY_HEIGHT: f64 = 77.0;
 
 #[cfg(target_os = "linux")]
 fn update_gtk_layer_shell_anchors(overlay_window: &tauri::webview::WebviewWindow) {
@@ -179,15 +168,8 @@ fn calculate_overlay_position(app_handle: &AppHandle) -> Option<(f64, f64)> {
         let work_area_x = work_area.position.x as f64 / scale;
         let work_area_y = work_area.position.y as f64 / scale;
 
-        let settings = settings::get_settings(app_handle);
-
         let x = work_area_x + (work_area_width - OVERLAY_WIDTH) / 2.0;
-        let y = match settings.overlay_position {
-            OverlayPosition::Top => work_area_y + OVERLAY_TOP_OFFSET,
-            OverlayPosition::Bottom | OverlayPosition::None => {
-                work_area_y + work_area_height - OVERLAY_HEIGHT - OVERLAY_BOTTOM_OFFSET
-            }
-        };
+        let y = work_area_y + (work_area_height - OVERLAY_HEIGHT) / 2.0;
 
         return Some((x, y));
     }
